@@ -1,16 +1,15 @@
+from PIL import Image
+import numpy as np
+import cv2
 import os
 import re
-import cv2
 import time
-import numpy as np
-from PIL import Image
 from concurrent.futures import ProcessPoolExecutor, as_completed
-
 
 def load_image(file_path):
     pil_image = Image.open(file_path)
     image = np.array(pil_image)
-    return image
+    return image, pil_image.info.get('dpi', (72, 72))  # Default to 72 DPI if not available
 
 def detect_black_margin(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -48,9 +47,11 @@ def add_black_margin(image, margin_size_mm, pixel_to_mm_ratio):
     new_image[margin_size_px:margin_size_px+image.shape[0], margin_size_px:margin_size_px+image.shape[1]] = image
     return new_image
 
-def process_image(file_path, pixel_to_mm_ratio, new_margin_mm):
+def process_image(file_path, new_margin_mm):
     try:
-        image = load_image(file_path)
+        image, dpi = load_image(file_path)
+        # Convert DPI to pixel_to_mm_ratio
+        pixel_to_mm_ratio = dpi[0] / 25.4  # Assuming square pixels, use the DPI in X direction
         margins = detect_black_margin(image)
         max_margin = max(margins)
         cropped_image = crop_image(image, max_margin)
@@ -103,7 +104,7 @@ def rename_files(root_folder):
                 os.rename(old_file_path, new_file_path)
                 print(f"Renamed {old_file_path} to {new_file_path}")
 
-def process_folder(root_folder, pixel_to_mm_ratio, new_margin_mm):
+def process_folder(root_folder, new_margin_mm):
     with ProcessPoolExecutor(max_workers=4) as executor:
         futures = []
         for dirpath, dirnames, filenames in os.walk(root_folder):
@@ -111,10 +112,10 @@ def process_folder(root_folder, pixel_to_mm_ratio, new_margin_mm):
             for filename in filenames:
                 if filename.lower().endswith('.tif'):
                     file_path = os.path.join(dirpath, filename)
-                    futures.append(executor.submit(process_image, file_path, pixel_to_mm_ratio, new_margin_mm))
+                    futures.append(executor.submit(process_image, file_path, new_margin_mm))
         for future in as_completed(futures):
             file_path, status = future.result()
-#           print(f"Processed {file_path}: {status}")
+            # print(f"Processed {file_path}: {status}")
 
 def main():
     root_folder = input("Please, input the root folder (default is './HD_fixed'): ") or './HD_fixed'
@@ -124,7 +125,6 @@ def main():
         print("Invalid action. Please enter 'process', 'rename', or 'both'.")
         return
 
-    pixel_to_mm_ratio = 0.1  # Example ratio, adjust based on your image resolution
     new_margin_mm = 5  # New margin size in millimeters
 
     print("Processing...")
@@ -133,7 +133,7 @@ def main():
     start = time.time()
 
     if action in ["process", "both"]:
-        process_folder(root_folder, pixel_to_mm_ratio, new_margin_mm)
+        process_folder(root_folder, new_margin_mm)
 
     if action in ["rename", "both"]:
         rename_files(root_folder)
