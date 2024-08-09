@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageOps
 import numpy as np
 import cv2
 import os
@@ -8,6 +8,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 
 def load_image(file_path):
     pil_image = Image.open(file_path)
+    pil_image = ImageOps.exif_transpose(pil_image)  # Handle image orientation
     image = np.array(pil_image)
     return image, pil_image.info.get('dpi', (72, 72))  # Default to 72 DPI if not available
 
@@ -47,6 +48,15 @@ def add_black_margin(image, margin_size_mm, pixel_to_mm_ratio):
     new_image[margin_size_px:margin_size_px+image.shape[0], margin_size_px:margin_size_px+image.shape[1]] = image
     return new_image
 
+def flatten_and_strip_metadata(image):
+    # Flatten image if it's multi-layered
+    if isinstance(image, Image.Image) and 'layers' in image.info:
+        image = image.convert('RGB')
+
+    # Remove metadata and save as a new PIL image
+    clean_image = Image.fromarray(np.array(image))
+    return clean_image
+
 def process_image(file_path, new_margin_mm):
     try:
         image, dpi = load_image(file_path)
@@ -56,8 +66,12 @@ def process_image(file_path, new_margin_mm):
         max_margin = max(margins)
         cropped_image = crop_image(image, max_margin)
         final_image = add_black_margin(cropped_image, new_margin_mm, pixel_to_mm_ratio)
-        final_pil_image = Image.fromarray(final_image)
-        final_pil_image.save(file_path)
+
+        # Flatten image and remove metadata
+        final_image_pil = flatten_and_strip_metadata(Image.fromarray(final_image))
+
+        # Save image back as TIFF or convert to PNG for simplicity
+        final_image_pil.save(file_path, format='TIFF')  # You can change format to 'PNG' if needed
         return file_path, "Success"
     except Exception as e:
         print(f"Error: {e} \n On {file_path}")
