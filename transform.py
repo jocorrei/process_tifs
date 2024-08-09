@@ -59,6 +59,7 @@ def process_image(file_path, pixel_to_mm_ratio, new_margin_mm):
         final_pil_image.save(file_path)
         return file_path, "Success"
     except Exception as e:
+        print(f"Error: {e} \n On {file_path}")
         return file_path, f"Error: {e}"
 
 def extract_file_number(filename):
@@ -73,7 +74,7 @@ def rename_files(root_folder):
         # Sort filenames based on the number after 'm'
         filenames.sort(key=extract_file_number)
         for index, filename in enumerate(filenames):
-            if filename.lower().endswith('.tif'):
+            if filename.lower().endswith('.tif') or filename.lower().endswith('.tiff'):
                 relative_path = os.path.relpath(dirpath, root_folder)
                 parts = relative_path.split(os.sep)
                 if len(parts) == 2:
@@ -96,7 +97,7 @@ def rename_files(root_folder):
                 new_file_path = os.path.join(dirpath, new_filename)
 
                 if os.path.exists(new_file_path):
-                    print(f"Skipping renaming {old_file_path} to {new_file_path} as the target file already exists.")
+                    # print(f"Skipping renaming {old_file_path} to {new_file_path} as the target file already exists.")
                     continue
 
                 os.rename(old_file_path, new_file_path)
@@ -113,7 +114,7 @@ def process_folder(root_folder, pixel_to_mm_ratio, new_margin_mm):
                     futures.append(executor.submit(process_image, file_path, pixel_to_mm_ratio, new_margin_mm))
         for future in as_completed(futures):
             file_path, status = future.result()
-            print(f"Processed {file_path}: {status}")
+#           print(f"Processed {file_path}: {status}")
 
 def main():
     root_folder = input("Please, input the root folder (default is './HD_fixed'): ") or './HD_fixed'
@@ -125,6 +126,8 @@ def main():
 
     pixel_to_mm_ratio = 0.1  # Example ratio, adjust based on your image resolution
     new_margin_mm = 5  # New margin size in millimeters
+
+    print("Processing...")
 
     ## stopwatch
     start = time.time()
