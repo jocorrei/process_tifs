@@ -40,7 +40,7 @@ def detect_black_margin(image, threshold=10):
             right_margin = gray.shape[1] - 1 - i
             break
 
-    logging.info(f"Margins detected - Left: {left_margin}, Top: {top_margin}, Right: {right_margin}, Bottom: {bottom_margin}")
+    # logging.info(f"Margins detected - Left: {left_margin}, Top: {top_margin}, Right: {right_margin}, Bottom: {bottom_margin}")
     return left_margin, top_margin, right_margin, bottom_margin
 
 def crop_image(image, max_margin):
