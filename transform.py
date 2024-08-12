@@ -45,10 +45,8 @@ def detect_black_margin(image, threshold=10):
 
 def crop_image(image, max_margin):
     if max_margin <= 0:
-        # logging.info("No margin detected, skipping cropping.")
         return image
     cropped_image = image[max_margin:image.shape[0]-max_margin, max_margin:image.shape[1]-max_margin]
-    # logging.info(f"Image cropped to size: {cropped_image.shape}")
     return cropped_image
 
 def add_black_margin(image, margin_size_mm, pixel_to_mm_ratio):
@@ -56,7 +54,6 @@ def add_black_margin(image, margin_size_mm, pixel_to_mm_ratio):
     new_shape = (image.shape[0] + 2 * margin_size_px, image.shape[1] + 2 * margin_size_px, image.shape[2])
     new_image = np.zeros(new_shape, dtype=image.dtype)
     new_image[margin_size_px:margin_size_px+image.shape[0], margin_size_px:margin_size_px+image.shape[1]] = image
-    # logging.info(f"Added black margin of {margin_size_px}px, new image size: {new_image.shape}")
     return new_image
 
 def process_image(file_path, pixel_to_mm_ratio, new_margin_mm):
@@ -70,8 +67,17 @@ def process_image(file_path, pixel_to_mm_ratio, new_margin_mm):
         final_pil_image.save(file_path)
         return file_path, "Success"
     except Exception as e:
-        print(f"Error: {e} \n On {file_path}")
+        logging.error(f"Error processing {file_path}: {e}")
         return file_path, f"Error: {e}"
+
+def convert_jpeg_to_tiff(jpeg_path):
+    tiff_path = jpeg_path.rsplit('.', 1)[0] + '.tif'
+    with Image.open(jpeg_path) as img:
+        img = img.convert('RGB')  # Ensure the image is in RGB mode
+        img.save(tiff_path, format='TIFF')
+    os.remove(jpeg_path)
+    # logging.info(f"Converted and removed {jpeg_path}. TIFF saved as {tiff_path}")
+    return tiff_path
 
 def extract_file_number(filename):
     match = re.search(r'_m(\d+)', filename)
@@ -108,7 +114,6 @@ def rename_files(root_folder):
                 new_file_path = os.path.join(dirpath, new_filename)
 
                 if os.path.exists(new_file_path):
-                    # print(f"Skipping renaming {old_file_path} to {new_file_path} as the target file already exists.")
                     continue
 
                 os.rename(old_file_path, new_file_path)
@@ -120,12 +125,14 @@ def process_folder(root_folder, pixel_to_mm_ratio, new_margin_mm):
         for dirpath, dirnames, filenames in os.walk(root_folder):
             filenames.sort(key=extract_file_number)  # Ensure the files are processed in order
             for filename in filenames:
-                if filename.lower().endswith('.tif'):
-                    file_path = os.path.join(dirpath, filename)
+                file_path = os.path.join(dirpath, filename)
+                if filename.lower().endswith('.jpeg') or filename.lower().endswith('.jpg'):
+                    tiff_path = convert_jpeg_to_tiff(file_path)
+                    futures.append(executor.submit(process_image, tiff_path, pixel_to_mm_ratio, new_margin_mm))
+                elif filename.lower().endswith('.tif') or filename.lower().endswith('.tiff'):
                     futures.append(executor.submit(process_image, file_path, pixel_to_mm_ratio, new_margin_mm))
         for future in as_completed(futures):
             file_path, status = future.result()
-#           print(f"Processed {file_path}: {status}")
 
 def main():
     root_folder = input("Please, input the root folder (default is './HD_fixed'): ") or './HD_fixed'
