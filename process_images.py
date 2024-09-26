@@ -20,7 +20,8 @@ def process_tipo_folder(tipo_folder):
                 if not os.path.exists(new_tif_dir):
                     os.makedirs(new_tif_dir)
                 new_tif_path = os.path.join(new_tif_dir, os.path.basename(tiff_path))
-                shutil.copy(tiff_path, new_tif_path)
+                if tiff_path != new_tif_path:
+                    shutil.copy(tiff_path, new_tif_path)
 
                 # Convert TIF to JPEG and copy to JPG folder
                 jpeg_path = convert_tiff_to_jpeg(tiff_path)
@@ -28,7 +29,8 @@ def process_tipo_folder(tipo_folder):
                 if not os.path.exists(new_jpg_dir):
                     os.makedirs(new_jpg_dir)
                 new_jpg_path = os.path.join(new_jpg_dir, os.path.basename(jpeg_path))
-                shutil.copy(jpeg_path, new_jpg_path)
+                if jpeg_path != new_jpg_path:
+                    shutil.copy(jpeg_path, new_jpg_path)
 
             elif filename.lower().endswith('.jpg'):
                 jpeg_path = os.path.join(dirpath, filename)
@@ -39,7 +41,8 @@ def process_tipo_folder(tipo_folder):
                 if not os.path.exists(new_jpg_dir):
                     os.makedirs(new_jpg_dir)
                 new_jpg_path = os.path.join(new_jpg_dir, os.path.basename(jpeg_path))
-                shutil.copy(jpeg_path, new_jpg_path)
+                if jpeg_path != new_jpg_path:
+                    shutil.copy(jpeg_path, new_jpg_path)
 
                 # Convert JPEG to TIFF and copy to TIF folder
                 tiff_path = convert_jpeg_to_tiff(jpeg_path)
@@ -47,7 +50,8 @@ def process_tipo_folder(tipo_folder):
                 if not os.path.exists(new_tif_dir):
                     os.makedirs(new_tif_dir)
                 new_tif_path = os.path.join(new_tif_dir, os.path.basename(tiff_path))
-                shutil.copy(tiff_path, new_tif_path)
+                if tiff_path != new_tif_path:
+                    shutil.copy(tiff_path, new_tif_path)
 
 def process_root_folder(root_folder):
     for dirpath, dirnames, filenames in os.walk(root_folder):
