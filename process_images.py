@@ -4,6 +4,7 @@ from utils import convert_jpeg_to_tiff, convert_tiff_to_jpeg, rename_image_files
 
 def process_tipo_folder(tipo_folder):
     tif_folder = tipo_folder.replace('JPG', 'TIF')
+    jpg_folder = tipo_folder  # Assuming tipo_folder is the JPG folder
 
     if not os.path.exists(tif_folder):
         os.makedirs(tif_folder)
