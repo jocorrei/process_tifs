@@ -24,7 +24,7 @@ def process_tipo_folder(tipo_folder):
                     shutil.copy(tiff_path, new_tif_path)
 
                 # Convert TIF to JPEG and copy to JPG folder
-                jpeg_path = convert_tiff_to_jpeg(tiff_path)
+                jpeg_path = convert_tiff_to_jpeg(tiff_path, new_jpg_dir)
                 new_jpg_dir = os.path.join(jpg_folder, relative_path)
                 if not os.path.exists(new_jpg_dir):
                     os.makedirs(new_jpg_dir)
@@ -45,7 +45,7 @@ def process_tipo_folder(tipo_folder):
                     shutil.copy(jpeg_path, new_jpg_path)
 
                 # Convert JPEG to TIFF and copy to TIF folder
-                tiff_path = convert_jpeg_to_tiff(jpeg_path)
+                tiff_path = convert_jpeg_to_tiff(jpeg_path, new_tif_dir)
                 new_tif_dir = os.path.join(tif_folder, relative_path)
                 if not os.path.exists(new_tif_dir):
                     os.makedirs(new_tif_dir)
