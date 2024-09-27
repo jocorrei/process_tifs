@@ -1,66 +1,32 @@
 import os
-import shutil
-from utils import convert_jpeg_to_tiff, convert_tiff_to_jpeg, rename_image_files
+from PIL import Image
 
-def process_tipo_folder(tipo_folder):
-    tif_folder = tipo_folder.replace('JPG', 'TIF')
-    jpg_folder = tipo_folder  # Assuming tipo_folder is the JPG folder
 
-    if not os.path.exists(tif_folder):
-        os.makedirs(tif_folder)
+def convert_tif_to_jpg(directory):
+    for root, dirs, files in os.walk(directory):
+        for dir_name in dirs:
+            if dir_name.lower() == 'JPG':
+                tipo_jpg_path = os.path.join(root, dir_name)
+                convert_images_in_tipo_jpg(tipo_jpg_path)
 
-    for dirpath, dirnames, filenames in os.walk(tipo_folder):
-        for filename in filenames:
-            relative_path = os.path.relpath(dirpath, tipo_folder)
-            new_tif_dir = os.path.join(tif_folder, relative_path)
-            new_jpg_dir = os.path.join(jpg_folder, relative_path)
 
-            if not os.path.exists(new_tif_dir):
-                os.makedirs(new_tif_dir)
-            if not os.path.exists(new_jpg_dir):
-                os.makedirs(new_jpg_dir)
+def convert_images_in_tipo_jpg(tipo_jpg_path):
+    for root, dirs, files in os.walk(tipo_jpg_path):
+        for file in files:
+            if file.lower().endswith('.tif') or file.lower().endswith('.tiff'):
+                file_path = os.path.join(root, file)
+                new_file_path = os.path.splitext(file_path)[0] + '.jpg'
+                # Open the .tif file and convert to .jpg
+                with Image.open(file_path) as img:
+                    img.convert('RGB').save(new_file_path, 'JPEG')
 
-            if filename.lower().endswith('.tif'):
-                tiff_path = os.path.join(dirpath, filename)
+                print(f"Converted {file_path} to {new_file_path}")
 
-                # Copy TIF to TIF folder
-                new_tif_path = os.path.join(new_tif_dir, os.path.basename(tiff_path))
-                if tiff_path != new_tif_path:
-                    shutil.copy(tiff_path, new_tif_path)
-
-                # Convert TIF to JPEG and copy to JPG folder
-                jpeg_path = convert_tiff_to_jpeg(tiff_path, new_jpg_dir)
-                new_jpg_path = os.path.join(new_jpg_dir, os.path.basename(jpeg_path))
-                if jpeg_path != new_jpg_path:
-                    shutil.copy(jpeg_path, new_jpg_path)
-
-            elif filename.lower().endswith('.jpg'):
-                jpeg_path = os.path.join(dirpath, filename)
-
-                # Copy JPEG to JPG folder
-                new_jpg_path = os.path.join(new_jpg_dir, os.path.basename(jpeg_path))
-                if jpeg_path != new_jpg_path:
-                    shutil.copy(jpeg_path, new_jpg_path)
-
-                # Convert JPEG to TIFF and copy to TIF folder
-                tiff_path = convert_jpeg_to_tiff(jpeg_path, new_tif_dir)
-                new_tif_path = os.path.join(new_tif_dir, os.path.basename(tiff_path))
-                if tiff_path != new_tif_path:
-                    shutil.copy(tiff_path, new_tif_path)
-
-def process_root_folder(root_folder):
-    for dirpath, dirnames, filenames in os.walk(root_folder):
-        for dirname in dirnames:
-            if dirname in ['JPG', 'TIF', 'PDF']:
-                tipo_folder = os.path.join(dirpath, dirname)
-                if dirname == 'JPG':
-                    process_tipo_folder(tipo_folder)
-                # Add any additional processing for TIF and PDF folders if needed
 
 def main():
     root_folder = input("Please, input the root folder: ")
-    process_root_folder(root_folder)
-    rename_image_files(root_folder)
+    convert_tif_to_jpg(root_folder)
+
 
 if __name__ == "__main__":
     main()

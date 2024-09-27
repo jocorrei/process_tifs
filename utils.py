@@ -14,12 +14,3 @@ def convert_tiff_to_jpeg(tiff_path, output_dir):
         img = img.convert('RGB')
         img.save(jpeg_path, format='JPEG')
     return jpeg_path
-
-def rename_image_files(root_folder):
-    for dirpath, dirnames, filenames in os.walk(root_folder):
-        for filename in filenames:
-            if filename.lower().endswith(('.jpg', '.jpeg', '.tif', '.tiff')):
-                new_filename = correct_image_filename(filename)
-                old_file_path = os.path.join(dirpath, filename)
-                new_file_path = os.path.join(dirpath, new_filename)
-                os.rename(old_file_path, new_file_path)
