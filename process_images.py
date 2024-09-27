@@ -14,6 +14,7 @@ def convert_tif_to_jpg(directory):
 def convert_images_in_tipo_jpg(tipo_jpg_path):
     for root, dirs, files in os.walk(tipo_jpg_path):
         for file in files:
+            print("\n", file)
             if file.lower().endswith('.tif') or file.lower().endswith('.tiff'):
                 file_path = os.path.join(root, file)
                 new_file_path = os.path.splitext(file_path)[0] + '.jpg'
