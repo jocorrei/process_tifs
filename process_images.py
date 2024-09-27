@@ -6,7 +6,8 @@ def convert_tif_to_jpg(directory):
     for root, dirs, files in os.walk(directory):
         print(dirs)
         for dir_name in dirs:
-            if dir_name.lower() == 'JPG':
+            if dir_name.lower() == 'jpg':
+                print("Did I got here?", dir_name)
                 tipo_jpg_path = os.path.join(root, dir_name)
                 convert_images_in_tipo_jpg(tipo_jpg_path)
 
