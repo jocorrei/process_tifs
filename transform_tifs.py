@@ -122,12 +122,9 @@ def rename_files_to_final(root_folder):
         if not os.path.basename(dirpath).startswith("Caixa"):
             continue
 
-        
         # Filter out hidden files like .DS_Store
         filenames = [f for f in filenames if not f.startswith('.')]
         filenames.sort()  # Ensure files are sorted alphabetically
-
-       
 
         # Start index at 1 for all cases
         for index, filename in enumerate(filenames, start=1):
@@ -169,6 +166,12 @@ def process_folder(root_folder, pixel_to_mm_ratio, new_margin_mm):
             filenames.sort()  # Ensure the files are processed in order
             for filename in filenames:
                 file_path = os.path.join(dirpath, filename)
+
+                # Skip files in the recycle bin
+                if '$RECYCLE.BIN' in file_path:
+                    logging.info(f"Skipping file in recycle bin: {file_path}")
+                    continue
+
                 if filename.lower().endswith('.jpeg') or filename.lower().endswith('.jpg'):
                     tiff_path = convert_jpeg_to_tiff(file_path)
                     futures.append(executor.submit(
