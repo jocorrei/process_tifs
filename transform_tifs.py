@@ -117,6 +117,10 @@ def rename_files_to_final(root_folder):
         filenames = [f for f in filenames if not f.startswith('.')]
         filenames.sort()  # Ensure files are sorted alphabetically
 
+        # Only process directories that start with "Caixa"
+        if not os.path.basename(dirpath).startswith("Caixa"):
+            continue
+
         # Start index at 1 for all cases
         for index, filename in enumerate(filenames, start=1):
             if filename.lower().endswith('.tif') or filename.lower().endswith('.tiff'):
@@ -138,8 +142,7 @@ def rename_files_to_final(root_folder):
                 # Consistent 4-digit formatting
                 file_index_str = f"{index:04d}"
 
-                new_filename = f"PT-MNE-CICL-IC-1-{
-                    caixa_number}-{processo_number}"
+                new_filename = f"PT-MNE-CICL-IC-1-{caixa_number}-{processo_number}"
                 if subprocesso:
                     new_filename += f"-{subprocesso_number}"
                 new_filename += f"_m{file_index_str}.tif"
