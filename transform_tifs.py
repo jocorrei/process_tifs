@@ -94,9 +94,13 @@ def convert_jpeg_to_tiff(jpeg_path):
 
 def rename_files_to_temp(root_folder):
     for dirpath, dirnames, filenames in os.walk(root_folder):
+
+        if not os.path.basename(dirpath).startswith("Caixa"):
+            continue
         # Filter out hidden files like .DS_Store
         filenames = [f for f in filenames if not f.startswith('.')]
         filenames.sort()  # Ensure files are sorted alphabetically
+
 
         # Start index at 1 for all cases
         for index, filename in enumerate(filenames, start=1):
@@ -113,13 +117,17 @@ def rename_files_to_temp(root_folder):
 
 def rename_files_to_final(root_folder):
     for dirpath, dirnames, filenames in os.walk(root_folder):
+
+         # Only process directories that start with "Caixa"
+        if not os.path.basename(dirpath).startswith("Caixa"):
+            continue
+
+        
         # Filter out hidden files like .DS_Store
         filenames = [f for f in filenames if not f.startswith('.')]
         filenames.sort()  # Ensure files are sorted alphabetically
 
-        # Only process directories that start with "Caixa"
-        if not os.path.basename(dirpath).startswith("Caixa"):
-            continue
+       
 
         # Start index at 1 for all cases
         for index, filename in enumerate(filenames, start=1):
