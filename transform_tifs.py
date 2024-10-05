@@ -94,16 +94,18 @@ def convert_jpeg_to_tiff(jpeg_path):
 
 def rename_files_to_temp(root_folder):
     for dirpath, dirnames, filenames in os.walk(root_folder):
-
         if not os.path.basename(dirpath).startswith("Caixa"):
             continue
+
         # Filter out hidden files like .DS_Store
         filenames = [f for f in filenames if not f.startswith('.')]
         filenames.sort()  # Ensure files are sorted alphabetically
 
-
-        # Start index at 1 for all cases
         for index, filename in enumerate(filenames, start=1):
+            if '$RECYCLE.BIN' in dirpath:
+                logging.info(f"Skipping file in recycle bin: {os.path.join(dirpath, filename)}")
+                continue
+
             if filename.lower().endswith('.tif') or filename.lower().endswith('.tiff'):
                 unique_id = str(uuid.uuid4())  # Generate a unique identifier
                 temp_filename = f"{index:04d}_{unique_id}.tif"
@@ -117,8 +119,6 @@ def rename_files_to_temp(root_folder):
 
 def rename_files_to_final(root_folder):
     for dirpath, dirnames, filenames in os.walk(root_folder):
-
-         # Only process directories that start with "Caixa"
         if not os.path.basename(dirpath).startswith("Caixa"):
             continue
 
@@ -126,8 +126,11 @@ def rename_files_to_final(root_folder):
         filenames = [f for f in filenames if not f.startswith('.')]
         filenames.sort()  # Ensure files are sorted alphabetically
 
-        # Start index at 1 for all cases
         for index, filename in enumerate(filenames, start=1):
+            if '$RECYCLE.BIN' in dirpath:
+                logging.info(f"Skipping file in recycle bin: {os.path.join(dirpath, filename)}")
+                continue
+
             if filename.lower().endswith('.tif') or filename.lower().endswith('.tiff'):
                 relative_path = os.path.relpath(dirpath, root_folder)
                 parts = relative_path.split(os.sep)
@@ -141,8 +144,7 @@ def rename_files_to_final(root_folder):
 
                 caixa_number = caixa.split()[1]
                 processo_number = processo.split()[1]
-                subprocesso_number = subprocesso.split()[
-                    1] if subprocesso else '00'
+                subprocesso_number = subprocesso.split()[1] if subprocesso else '00'
 
                 # Consistent 4-digit formatting
                 file_index_str = f"{index:04d}"
