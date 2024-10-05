@@ -94,8 +94,6 @@ def convert_jpeg_to_tiff(jpeg_path):
 
 def rename_files_to_temp(root_folder):
     for dirpath, dirnames, filenames in os.walk(root_folder):
-        if not os.path.basename(dirpath).startswith("Caixa"):
-            continue
 
         # Filter out hidden files like .DS_Store
         filenames = [f for f in filenames if not f.startswith('.')]
@@ -103,7 +101,7 @@ def rename_files_to_temp(root_folder):
 
         for index, filename in enumerate(filenames, start=1):
             if '$RECYCLE.BIN' in dirpath:
-                logging.info(f"Skipping file in recycle bin: {os.path.join(dirpath, filename)}")
+                #logging.info(f"Skipping file in recycle bin: {os.path.join(dirpath, filename)}")
                 continue
 
             if filename.lower().endswith('.tif') or filename.lower().endswith('.tiff'):
@@ -119,8 +117,7 @@ def rename_files_to_temp(root_folder):
 
 def rename_files_to_final(root_folder):
     for dirpath, dirnames, filenames in os.walk(root_folder):
-        if not os.path.basename(dirpath).startswith("Caixa"):
-            continue
+     
 
         # Filter out hidden files like .DS_Store
         filenames = [f for f in filenames if not f.startswith('.')]
@@ -128,7 +125,7 @@ def rename_files_to_final(root_folder):
 
         for index, filename in enumerate(filenames, start=1):
             if '$RECYCLE.BIN' in dirpath:
-                logging.info(f"Skipping file in recycle bin: {os.path.join(dirpath, filename)}")
+                # logging.info(f"Skipping file in recycle bin: {os.path.join(dirpath, filename)}")
                 continue
 
             if filename.lower().endswith('.tif') or filename.lower().endswith('.tiff'):
@@ -171,7 +168,7 @@ def process_folder(root_folder, pixel_to_mm_ratio, new_margin_mm):
 
                 # Skip files in the recycle bin
                 if '$RECYCLE.BIN' in file_path:
-                    logging.info(f"Skipping file in recycle bin: {file_path}")
+                    #logging.info(f"Skipping file in recycle bin: {file_path}")
                     continue
 
                 if filename.lower().endswith('.jpeg') or filename.lower().endswith('.jpg'):
